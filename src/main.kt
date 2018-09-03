@@ -4,6 +4,7 @@ import kotlinx.html.js.onBlurFunction
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
 import org.w3c.dom.get
 import kotlin.browser.document
 
@@ -33,11 +34,9 @@ private fun TagConsumer<HTMLElement>.body() {
             }
         }
     } else {
-        val input = input(InputType.text) {
+        inputAutoSelect {
             value = freeText
-            console.log("wow")
-
-            onBlurFunction = {
+            val save: (Event) -> Unit = {
                 var v = it.currentTarget.asDynamic().value as String
                 if (v.isEmpty()) {
                     v = "xxxxxxxxxxxxxxxxxxxxxxx"
@@ -49,10 +48,16 @@ private fun TagConsumer<HTMLElement>.body() {
                 showWow = true
                 reDraw()
             }
+            onBlurFunction = save
+            onChangeFunction = save
         }
-        input.asDynamic().focus()
-        input.asDynamic().select()
     }
+}
+
+private fun TagConsumer<HTMLElement>.inputAutoSelect(b: INPUT.() -> Unit) {
+    val inputText = input(InputType.text, block = b)
+    inputText.asDynamic().focus()
+    inputText.asDynamic().select()
 }
 
 var freeText: String = "xxxxxxxxxxxxxx"
